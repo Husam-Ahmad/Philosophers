@@ -20,6 +20,7 @@ clean:
 
 fclean: clean
 		rm -f $(NAME)
+		rm -f *fier
 
 re: fclean all
 
