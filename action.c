@@ -6,7 +6,7 @@
 /*   By: huahmad <huahmad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 14:08:36 by huahmad           #+#    #+#             */
-/*   Updated: 2025/08/18 12:59:40 by huahmad          ###   ########.fr       */
+/*   Updated: 2025/08/18 18:31:25 by huahmad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,27 @@ unsigned int	get_time(void)
 	return ((tv.tv_sec * (unsigned int)1000) + (tv.tv_usec / 1000));
 }
 
-void	messages(char *str, t_philo *philo)
+void messages(char *str, t_philo *p)
 {
-	long long	time;
-
-	pthread_mutex_lock(&philo->data->print);
-	time = get_time() - philo->data->start_time;
-	if (ft_strcmp("DIED", str) == 0 && philo->data->dead == 0)
+    unsigned long long t;
+	
+	pthread_mutex_lock(&p->data->lock);
+    if (p->data->dead && ft_strcmp(str, "DIED") != 0) 
 	{
-		printf("%lld %d %s\n", time, philo->id, str);
-		philo->data->dead = 1;
-	}
-	if (!philo->data->dead)
-		printf("%lld %d %s\n", time, philo->id, str);
-	pthread_mutex_unlock(&philo->data->print);
+        pthread_mutex_unlock(&p->data->lock);
+        return;
+    }
+    pthread_mutex_lock(&p->data->print);
+    t = (unsigned long long)(get_time() - p->data->start_time);
+    if (!p->data->dead && ft_strcmp(str, "DIED") == 0) 
+	{
+        p->data->dead = 1;
+        printf("%llu %d %s\n", t, p->id, "DIED");
+    } 
+	else if (!p->data->dead) 
+        printf("%llu %d %s\n", t, p->id, str);
+    pthread_mutex_unlock(&p->data->print);
+    pthread_mutex_unlock(&p->data->lock);
 }
 
 void take_forks(t_philo *p) 
