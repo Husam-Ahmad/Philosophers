@@ -6,25 +6,29 @@
 /*   By: huahmad <huahmad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 13:46:56 by huahmad           #+#    #+#             */
-/*   Updated: 2025/08/18 12:13:28 by huahmad          ###   ########.fr       */
+/*   Updated: 2025/08/18 17:42:14 by huahmad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	 one_philo(t_data *data)
+int	one_philo(t_data *data)
 {
-	pthread_mutex_lock(&data->print);
-	printf("philo->data->dead: %d\n", data->dead);
-	pthread_mutex_unlock(&data->print);
-	data->start_time = get_time();
-	eat(data->philos);
-	pthread_create(&data->tid[0], NULL, &supervisor, &data->philos[0]);
-	pthread_detach(data->tid[0]);
-	while (data->dead == 0)
-		ft_usleep(1);
-	ft_exit(data);
-	return (0);
+    t_philo	*p;
+
+	p = &data->philos[0];
+    data->start_time = get_time();
+    messages("has taken a fork", p);
+    pthread_mutex_lock(&p->lock);
+    p->eating = 0;
+    p->time_to_die = get_time() + data->time_die;
+    pthread_mutex_unlock(&p->lock);
+    if (pthread_create(&p->t1, NULL, &supervisor, p))
+        return ft_error("creating supervisor error", data);
+    if (pthread_join(p->t1, NULL))
+        return ft_error("joining supervisor error", data);
+    ft_exit(data);
+    return 0;
 }
 
 void	ft_exit(t_data *data)

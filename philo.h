@@ -6,7 +6,7 @@
 /*   By: huahmad <huahmad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 13:42:15 by huahmad           #+#    #+#             */
-/*   Updated: 2025/08/16 16:19:15 by huahmad          ###   ########.fr       */
+/*   Updated: 2025/08/18 18:00:46 by huahmad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <pthread.h>
 # include <sys/time.h>
+# include <stdint.h>
 
 typedef struct s_philo
 {
