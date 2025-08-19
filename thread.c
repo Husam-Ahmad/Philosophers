@@ -6,7 +6,7 @@
 /*   By: huahmad <huahmad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 17:40:38 by huahmad           #+#    #+#             */
-/*   Updated: 2025/08/18 17:30:37 by huahmad          ###   ########.fr       */
+/*   Updated: 2025/08/19 12:37:23 by huahmad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,27 +30,90 @@ void	*monitor(void *data_pointer)
 	return ((void *)0);
 }
 
-void	*supervisor(void *philo_pointer)
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   supervisor.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yourlogin <you@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/19 00:00:00 by yourlogin         #+#    #+#             */
+/*   Updated: 2025/08/19 00:00:00 by yourlogin        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+#include <unistd.h>
+
+static int	get_dead(t_data *d)
+{
+	int	v;
+
+	pthread_mutex_lock(&d->lock);
+	v = d->dead;
+	pthread_mutex_unlock(&d->lock);
+	return (v);
+}
+
+static void	mark_finished(t_philo *p)
+{
+	pthread_mutex_lock(&p->data->lock);
+	p->data->finished++;
+	if (p->data->finished == p->data->num_philo)
+		p->data->dead = 1;
+	pthread_mutex_unlock(&p->data->lock);
+}
+
+static int	check_and_handle_death(t_philo *philo)
+{
+	uint64_t	now;
+
+	pthread_mutex_lock(&philo->lock);
+	now = get_time();
+	if (!philo->eating && now >= philo->time_to_die)
+	{
+		messages("DIED", philo);
+		pthread_mutex_unlock(&philo->lock);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->lock);
+	return (0);
+}
+
+static int	check_and_flag_finished(t_philo *philo)
+{
+	int	done;
+
+	done = 0;
+	pthread_mutex_lock(&philo->lock);
+	if (philo->eat_cont == philo->data->num_meals)
+	{
+		philo->eat_cont++;
+		done = 1;
+	}
+	pthread_mutex_unlock(&philo->lock);
+	return (done);
+}
+
+void	*supervisor(void *arg)
 {
 	t_philo	*philo;
 
-	philo = (t_philo *) philo_pointer;
-	while (philo->data->dead == 0)
-	{	
-		pthread_mutex_lock(&philo->lock);
-		if (get_time() >= philo->time_to_die && philo->eating == 0)
-			messages("DIED", philo);
-		if (philo->eat_cont == philo->data->num_meals)
+	philo = (t_philo *)arg;
+	while (!get_dead(philo->data))
+	{
+		if (check_and_handle_death(philo))
 		{
-			pthread_mutex_lock(&philo->data->lock);
-			philo->data->finished++;
-			philo->eat_cont++;
-			pthread_mutex_unlock(&philo->data->lock);
+			usleep(1000);
+			continue ;
 		}
-		pthread_mutex_unlock(&philo->lock);
+		if (check_and_flag_finished(philo))
+			mark_finished(philo);
+		usleep(1000);
 	}
-	return ((void *)0);
+	return (NULL);
 }
+
 
 void	*routine(void *philo_pointer)
 {
