@@ -6,7 +6,7 @@
 /*   By: huahmad <huahmad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 13:42:15 by huahmad           #+#    #+#             */
-/*   Updated: 2025/08/18 18:00:46 by huahmad          ###   ########.fr       */
+/*   Updated: 2025/08/19 12:43:48 by huahmad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,11 @@ int				ft_usleep(unsigned int time);
 int				init(t_data *data, char **av);
 int				thread_init(t_data *data);
 int				check_input_is_number(char **av);
+int				get_dead(t_data *d);
 void			eat(t_philo *philo);
+void			mark_finished(t_philo *p);
+int				check_and_handle_death(t_philo *philo);
+int				check_and_flag_finished(t_philo *philo);
 void			*supervisor(void *philo_pointer);
 void			*routine(void *philo_pointer);
 int				ft_av_check(char **str);

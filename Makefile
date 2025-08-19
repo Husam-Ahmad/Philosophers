@@ -5,10 +5,11 @@ SRCS = philo.c\
 		init.c\
 		thread.c\
 		state.c\
+		check.c\
 
 OBJS = $(SRCS:.c=.o)
 
-CC = cc -Wall -Wextra -Werror# -fsanitize=thread -g
+CC = cc -Wall -Wextra -Werror -g3 # -fsanitize=thread -g
 
 all: $(NAME) 
 
